@@ -95,8 +95,7 @@
                 pluginUniqueId: 'a41d7f2c-3e8b-4c6a-9d1e-2f7a5b8c4d09'
             };
 
-            function renderLibraries(libraries, selected) {
-                var container = document.querySelector('#libraryList');
+            function renderLibraries(container, libraries, selected) {
                 if (!libraries || libraries.length === 0) {
                     container.innerHTML = '<div class="fieldDescription">'
                         + 'No se encontraron bibliotecas.</div>';
@@ -146,11 +145,11 @@
                     page.querySelector('#txtClientFilter').value = config.ClientFilter || '';
                     page.querySelector('#chkCleanup').checked = config.CarouselCleanupEnabled;
                     page.querySelector('#txtMaxLoaded').value = config.MaxLoadedImages;
-                    renderLibraries(libraries, config.TargetLibraries || []);
+                    renderLibraries(page.querySelector('#libraryList'), libraries, config.TargetLibraries || []);
                     Dashboard.hideLoadingMsg();
                 }).catch(function (err) {
                     Dashboard.hideLoadingMsg();
-                    var container = document.querySelector('#libraryList');
+                    var container = page.querySelector('#libraryList');
                     if (container) {
                         container.innerHTML = '<div class="fieldDescription" style="color:#c33">'
                             + 'Error cargando bibliotecas: '
