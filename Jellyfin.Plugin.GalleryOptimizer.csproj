@@ -17,24 +17,11 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <!--
-    Se compila contra las DLLs del servidor instalado (D:\Jellyfin\Server,
-    Jellyfin 12.1 net10.0) para quedar ligado al ABI exacto del servidor.
-    <Private>false</Private> = no copiarlas al output (ya las aporta el host).
-  -->
+  <!-- Las librerías de Jellyfin las aporta el servidor en runtime -->
   <ItemGroup>
-    <Reference Include="D:\Jellyfin\Server\MediaBrowser.Controller.dll">
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="D:\Jellyfin\Server\MediaBrowser.Common.dll">
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="D:\Jellyfin\Server\MediaBrowser.Model.dll">
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="D:\Jellyfin\Server\Jellyfin.Data.dll">
-      <Private>false</Private>
-    </Reference>
+    <PackageReference Include="Jellyfin.Controller" Version="12.1.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Jellyfin.Model" Version="12.1.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Jellyfin.Data" Version="12.1.*" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup>
