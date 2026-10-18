@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Jellyfin.Plugin.GalleryOptimizer</RootNamespace>
+    <AssemblyName>Jellyfin.Plugin.GalleryOptimizer</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <Version>1.1.0.0</Version>
+  </PropertyGroup>
+
+  <!-- Tipos de ASP.NET Core (HttpContext, IStartupFilter, middleware) -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <!--
+    Se compila contra las DLLs del servidor instalado (D:\Jellyfin\Server,
+    Jellyfin 12.1 net10.0) para quedar ligado al ABI exacto del servidor.
+    <Private>false</Private> = no copiarlas al output (ya las aporta el host).
+  -->
+  <ItemGroup>
+    <Reference Include="D:\Jellyfin\Server\MediaBrowser.Controller.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="D:\Jellyfin\Server\MediaBrowser.Common.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="D:\Jellyfin\Server\MediaBrowser.Model.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="D:\Jellyfin\Server\Jellyfin.Data.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\configPage.html" />
+  </ItemGroup>
+
+</Project>

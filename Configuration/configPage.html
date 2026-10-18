@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Gallery Optimizer</title>
+</head>
+
+<body>
+    <div id="GalleryOptimizerConfigPage" data-role="page" class="page type-interior pluginConfigurationPage"
+        data-require="emby-input,emby-button,emby-toggle,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="GalleryOptimizerConfigForm">
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input is="emby-toggle" type="checkbox" id="chkEnabled" />
+                            <span>Optimización activa</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">
+                            Limita el tamaño de las imágenes servidas a los clientes.
+                        </div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="txtMaxWidth">Ancho máximo de imagen (px)</label>
+                        <input is="emby-input" type="number" id="txtMaxWidth" min="256" max="8192" step="64" />
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="txtMaxHeight">Alto máximo de imagen (px)</label>
+                        <input is="emby-input" type="number" id="txtMaxHeight" min="256" max="8192" step="64" />
+                        <div class="fieldDescription">
+                            Las imágenes nunca se servirán más grandes que estos límites.
+                            1920×1080 cubre Full HD; sube el alto si usas fotos verticales.
+                        </div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="txtQuality">Calidad máxima (1-100)</label>
+                        <input is="emby-input" type="number" id="txtQuality" min="1" max="100" step="1" />
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="txtClientFilter">Filtro de cliente (User-Agent)</label>
+                        <input is="emby-input" type="text" id="txtClientFilter" />
+                        <div class="fieldDescription">
+                            Vacío = todos los clientes. Escribe "WebOS" para limitar solo la TV LG,
+                            o "NetCast" para LG antiguas.
+                        </div>
+                    </div>
+
+                    <h3 class="checkboxListLabel">Bibliotecas afectadas</h3>
+                    <div class="fieldDescription">
+                        Solo se limitan las imágenes de items de estas bibliotecas
+                        y solo en ellas actúa la tarea de pre-generado de caché.
+                        Si no marcas ninguna, se aplica a TODAS.
+                    </div>
+                    <div id="libraryList" class="checkboxList paperList" style="padding: .5em 1em 1em; margin: .5em 0;">
+                    </div>
+
+                    <h3 class="checkboxListLabel">Limpieza de carrusel (cliente)</h3>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input is="emby-toggle" type="checkbox" id="chkCleanup" />
+                            <span>Liberar imágenes fuera del viewport</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">
+                            Inyecta en jellyfin-web (incluida la app webOS) un script que
+                            descarga de memoria las imágenes del carrusel que salen de
+                            pantalla, restaurándolas al volver.
+                        </div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="txtMaxLoaded">Imágenes máximas retenidas en memoria</label>
+                        <input is="emby-input" type="number" id="txtMaxLoaded" min="5" max="500" step="1" />
+                        <div class="fieldDescription">
+                            Cuando el carrusel retiene más imágenes que este límite,
+                            las más antiguas fuera de vista se sustituyen por un
+                            píxel transparente hasta que sean necesarias de nuevo.
+                        </div>
+                    </div>
+
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block">
+                            <span>Guardar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            var GalleryOptimizerConfig = {
+                pluginUniqueId: 'a41d7f2c-3e8b-4c6a-9d1e-2f7a5b8c4d09'
+            };
+
+            function renderLibraries(libraries, selected) {
+                var container = document.querySelector('#libraryList');
+                if (!libraries || libraries.length === 0) {
+                    container.innerHTML = '<div class="fieldDescription">'
+                        + 'No se encontraron bibliotecas.</div>';
+                    return;
+                }
+                container.innerHTML = libraries.map(function (lib) {
+                    var checked = selected.indexOf(lib.Name) >= 0 ? ' checked' : '';
+                    var type = lib.CollectionType ? ' (' + lib.CollectionType + ')' : '';
+                    return '<div class="checkboxContainer">'
+                        + '<label>'
+                        + '<input is="emby-checkbox" type="checkbox" class="chkLibrary" '
+                        + 'data-name="' + lib.Name + '"' + checked + ' />'
+                        + '<span>' + lib.Name + type + '</span>'
+                        + '</label></div>';
+                }).join('');
+            }
+
+            function loadLibraries() {
+                if (typeof ApiClient === 'undefined' || !ApiClient.getJSON) {
+                    return Promise.reject(new Error('ApiClient no disponible'));
+                }
+                return ApiClient.getJSON(ApiClient.getUrl('Library/VirtualFolders'))
+                    .then(null, function (err) {
+                        var url = ApiClient.getUrl('Library/VirtualFolders');
+                        if (typeof Dashboard !== 'undefined' && Dashboard.getCurrentUserId) {
+                            url += '?userId=' + encodeURIComponent(Dashboard.getCurrentUserId());
+                            return ApiClient.getJSON(url);
+                        }
+                        throw err;
+                    });
+            }
+
+            function initPage() {
+                var page = document.querySelector('#GalleryOptimizerConfigPage');
+                if (!page) return;
+                Dashboard.showLoadingMsg();
+                Promise.all([
+                    ApiClient.getPluginConfiguration(GalleryOptimizerConfig.pluginUniqueId),
+                    loadLibraries()
+                ]).then(function (results) {
+                    var config = results[0];
+                    var libraries = results[1] || [];
+                    page.querySelector('#chkEnabled').checked = config.Enabled;
+                    page.querySelector('#txtMaxWidth').value = config.MaxWidth;
+                    page.querySelector('#txtMaxHeight').value = config.MaxHeight;
+                    page.querySelector('#txtQuality').value = config.Quality;
+                    page.querySelector('#txtClientFilter').value = config.ClientFilter || '';
+                    page.querySelector('#chkCleanup').checked = config.CarouselCleanupEnabled;
+                    page.querySelector('#txtMaxLoaded').value = config.MaxLoadedImages;
+                    renderLibraries(libraries, config.TargetLibraries || []);
+                    Dashboard.hideLoadingMsg();
+                }).catch(function (err) {
+                    Dashboard.hideLoadingMsg();
+                    var container = document.querySelector('#libraryList');
+                    if (container) {
+                        container.innerHTML = '<div class="fieldDescription" style="color:#c33">'
+                            + 'Error cargando bibliotecas: '
+                            + (err && err.message ? err.message : err)
+                            + '</div>';
+                    }
+                });
+            }
+
+            (function () {
+                var page = document.querySelector('#GalleryOptimizerConfigPage');
+                page.addEventListener('pageshow', initPage);
+                page.addEventListener('viewshow', initPage);
+                setTimeout(initPage, 500);
+            })();
+
+            document.querySelector('#GalleryOptimizerConfigForm')
+                .addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var page = this.closest('#GalleryOptimizerConfigPage');
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(GalleryOptimizerConfig.pluginUniqueId).then(function (config) {
+                        config.Enabled = page.querySelector('#chkEnabled').checked;
+                        config.MaxWidth = parseInt(page.querySelector('#txtMaxWidth').value, 10) || 1920;
+                        config.MaxHeight = parseInt(page.querySelector('#txtMaxHeight').value, 10) || 1920;
+                        config.Quality = parseInt(page.querySelector('#txtQuality').value, 10) || 80;
+                        config.ClientFilter = page.querySelector('#txtClientFilter').value.trim();
+                        config.CarouselCleanupEnabled = page.querySelector('#chkCleanup').checked;
+                        config.MaxLoadedImages = parseInt(page.querySelector('#txtMaxLoaded').value, 10) || 30;
+                        config.TargetLibraries = Array.prototype.slice
+                            .call(page.querySelectorAll('.chkLibrary:checked'))
+                            .map(function (c) { return c.getAttribute('data-name'); });
+                        ApiClient.updatePluginConfiguration(
+                            GalleryOptimizerConfig.pluginUniqueId, config
+                        ).then(Dashboard.processPluginConfigurationUpdateResult);
+                    });
+                    return false;
+                });
+        </script>
+    </div>
+</body>
+
+</html>
