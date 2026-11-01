@@ -1,0 +1,19 @@
+name: "Gallery Optimizer"
+guid: "a41d7f2c-3e8b-4c6a-9d1e-2f7a5b8c4d09"
+version: "1.1.0.0"
+targetAbi: "12.1.0.0"
+framework: "net10.0"
+owner: "NeN"
+overview: "Limita el tamaño de las imágenes servidas para ahorrar RAM en clientes limitados (webOS)."
+description: >
+  Añade un middleware que limita las dimensiones y la calidad de las imágenes
+  servidas por Jellyfin, más una tarea programada que pre-genera miniaturas
+  optimizadas en caché. Pensado para TVs con poca memoria (LG webOS) al navegar
+  galerías de fotos.
+category: "General"
+artifacts:
+  - "Jellyfin.Plugin.GalleryOptimizer.dll"
+changelog: |-
+  - Dimensiones configurables por separado (ancho/alto)
+  - Ámbito del middleware por biblioteca seleccionada
+  - Script de limpieza de carrusel para liberar RAM en webOS
