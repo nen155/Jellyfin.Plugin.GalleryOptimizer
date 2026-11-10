@@ -150,6 +150,13 @@ El ensamblado queda en
 
 - Compilado contra **Jellyfin 12.1** (`net10.0`; `targetAbi: 12.1.0.0`).
 
+## Autor
+
+**Emilio Chica Jiménez** — [miliolab.com](https://miliolab.com)
+
+- Repositorio: <https://github.com/nen155/Jellyfin.Plugin.GalleryOptimizer>
+- Catálogo de plugins: <https://nen155.github.io/jellyfin-plugins-repo/manifest.json>
+
 ## Licencia
 
 [GPL-2.0](LICENSE)

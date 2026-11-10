@@ -2,20 +2,26 @@ name: "Gallery Optimizer"
 guid: "a41d7f2c-3e8b-4c6a-9d1e-2f7a5b8c4d09"
 image: "logo.png"
 imageUrl: "https://raw.githubusercontent.com/nen155/Jellyfin.Plugin.GalleryOptimizer/main/logo.png"
-version: "1.2.0.0"
+version: "1.2.1.0"
 targetAbi: "12.1.0.0"
 framework: "net10.0"
-owner: "NeN"
+owner: "Emilio Chica Jiménez"
 overview: "Limita el tamaño de las imágenes servidas para ahorrar RAM en clientes limitados (webOS)."
 description: >
   Añade un middleware que limita las dimensiones y la calidad de las imágenes
   servidas por Jellyfin, más una tarea programada que pre-genera miniaturas
   optimizadas en caché. Pensado para TVs con poca memoria (LG webOS) al navegar
   galerías de fotos.
+
+  Desarrollado por Emilio Chica Jiménez — https://miliolab.com
+
+  Código fuente: https://github.com/nen155/Jellyfin.Plugin.GalleryOptimizer
 category: "General"
 artifacts:
   - "Jellyfin.Plugin.GalleryOptimizer.dll"
 changelog: |-
+  - Añade el logo del plugin y los datos del desarrollador
+  - Repositorio y web del autor en la descripción y en la página de ajustes
   - Redirige las descargas de fotos (/Items/{id}/Download) al redimensionador:
     evita que el reproductor decodifique el original a tamaño completo
   - Límite por defecto a 1920x1080 (un bitmap de 1080p son ~8 MB de RAM)
