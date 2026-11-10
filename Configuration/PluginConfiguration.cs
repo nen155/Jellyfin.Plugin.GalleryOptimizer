@@ -14,11 +14,12 @@ public class PluginConfiguration : BasePluginConfiguration
     {
         Enabled = true;
         MaxWidth = 1920;
-        MaxHeight = 1920;
+        MaxHeight = 1080;
         Quality = 80;
         ClientFilter = string.Empty;
+        RewritePhotoDownloads = true;
         CarouselCleanupEnabled = true;
-        MaxLoadedImages = 30;
+        MaxLoadedImages = 2;
         TargetLibraries = new List<string>();
     }
 
@@ -44,9 +45,16 @@ public class PluginConfiguration : BasePluginConfiguration
 
     /// <summary>
     /// Gets or sets un filtro de User-Agent (substring, insensible a mayúsculas).
-    /// Vacío = se aplica a todos los clientes. Ej.: "WebOS" para solo la TV LG.
+    /// Vacío = se aplica a todos los clientes. Ej.: "Web0S" para solo la TV LG.
     /// </summary>
     public string ClientFilter { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether las peticiones de descarga de una
+    /// foto (<c>/Items/{id}/Download</c>) se redirigen al pipeline de imágenes,
+    /// para que nunca se sirva el original sin redimensionar.
+    /// </summary>
+    public bool RewritePhotoDownloads { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether se inyecta el script que libera
@@ -55,8 +63,8 @@ public class PluginConfiguration : BasePluginConfiguration
     public bool CarouselCleanupEnabled { get; set; }
 
     /// <summary>
-    /// Gets or sets el número máximo de imágenes con bitmap decodificado
-    /// retenidas en memoria por el limpiador del carrusel.
+    /// Gets or sets el número máximo de imágenes adicionales (fuera de pantalla)
+    /// que el cliente puede mantener decodificadas en memoria.
     /// </summary>
     public int MaxLoadedImages { get; set; }
 

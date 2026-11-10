@@ -21,6 +21,20 @@
                         </div>
                     </div>
 
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input is="emby-toggle" type="checkbox" id="chkRewriteDownloads" />
+                            <span>Redimensionar descargas de fotos</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">
+                            El reproductor de fotos de jellyfin-web pide el <strong>original</strong>
+                            (<code>/Items/&lt;id&gt;/Download</code>) cuando el usuario puede descargar
+                            contenido. Un original de 6000×4000 ocupa ~96 MB de RAM al decodificarse.
+                            Con esta opción esas peticiones se redirigen al redimensionador.
+                            Las descargas reales (navegador, gestor de descargas) no se tocan.
+                        </div>
+                    </div>
+
                     <div class="inputContainer">
                         <label class="inputLabel" for="txtMaxWidth">Ancho máximo de imagen (px)</label>
                         <input is="emby-input" type="number" id="txtMaxWidth" min="256" max="8192" step="64" />
@@ -31,7 +45,8 @@
                         <input is="emby-input" type="number" id="txtMaxHeight" min="256" max="8192" step="64" />
                         <div class="fieldDescription">
                             Las imágenes nunca se servirán más grandes que estos límites.
-                            1920×1080 cubre Full HD; sube el alto si usas fotos verticales.
+                            1920×1080 cubre Full HD y es lo máximo que puede mostrar un
+                            televisor; cada bitmap de ese tamaño ocupa ~8 MB de RAM.
                         </div>
                     </div>
 
@@ -44,8 +59,8 @@
                         <label class="inputLabel" for="txtClientFilter">Filtro de cliente (User-Agent)</label>
                         <input is="emby-input" type="text" id="txtClientFilter" />
                         <div class="fieldDescription">
-                            Vacío = todos los clientes. Escribe "WebOS" para limitar solo la TV LG,
-                            o "NetCast" para LG antiguas.
+                            Vacío = todos los clientes. Escribe "Web0S" (con cero) para limitar
+                            solo a la app de LG webOS, o "NetCast" para LG antiguas.
                         </div>
                     </div>
 
@@ -72,12 +87,13 @@
                     </div>
 
                     <div class="inputContainer">
-                        <label class="inputLabel" for="txtMaxLoaded">Imágenes máximas retenidas en memoria</label>
-                        <input is="emby-input" type="number" id="txtMaxLoaded" min="5" max="500" step="1" />
+                        <label class="inputLabel" for="txtMaxLoaded">Imágenes extra retenidas en memoria</label>
+                        <input is="emby-input" type="number" id="txtMaxLoaded" min="1" max="12" step="1" />
                         <div class="fieldDescription">
-                            Cuando el carrusel retiene más imágenes que este límite,
-                            las más antiguas fuera de vista se sustituyen por un
-                            píxel transparente hasta que sean necesarias de nuevo.
+                            Cuántas imágenes <em>fuera de pantalla</em> puede seguir conservando
+                            el cliente. Las visibles nunca se liberan. Con 2 y fotos a 1080p el
+                            pico ronda los 25 MB, frente a los cientos de MB de antes.
+                            El máximo admitido es 12.
                         </div>
                     </div>
 
@@ -139,6 +155,7 @@
                     var config = results[0];
                     var libraries = results[1] || [];
                     page.querySelector('#chkEnabled').checked = config.Enabled;
+                    page.querySelector('#chkRewriteDownloads').checked = config.RewritePhotoDownloads !== false;
                     page.querySelector('#txtMaxWidth').value = config.MaxWidth;
                     page.querySelector('#txtMaxHeight').value = config.MaxHeight;
                     page.querySelector('#txtQuality').value = config.Quality;
@@ -173,12 +190,13 @@
                     Dashboard.showLoadingMsg();
                     ApiClient.getPluginConfiguration(GalleryOptimizerConfig.pluginUniqueId).then(function (config) {
                         config.Enabled = page.querySelector('#chkEnabled').checked;
+                        config.RewritePhotoDownloads = page.querySelector('#chkRewriteDownloads').checked;
                         config.MaxWidth = parseInt(page.querySelector('#txtMaxWidth').value, 10) || 1920;
-                        config.MaxHeight = parseInt(page.querySelector('#txtMaxHeight').value, 10) || 1920;
+                        config.MaxHeight = parseInt(page.querySelector('#txtMaxHeight').value, 10) || 1080;
                         config.Quality = parseInt(page.querySelector('#txtQuality').value, 10) || 80;
                         config.ClientFilter = page.querySelector('#txtClientFilter').value.trim();
                         config.CarouselCleanupEnabled = page.querySelector('#chkCleanup').checked;
-                        config.MaxLoadedImages = parseInt(page.querySelector('#txtMaxLoaded').value, 10) || 30;
+                        config.MaxLoadedImages = parseInt(page.querySelector('#txtMaxLoaded').value, 10) || 2;
                         config.TargetLibraries = Array.prototype.slice
                             .call(page.querySelectorAll('.chkLibrary:checked'))
                             .map(function (c) { return c.getAttribute('data-name'); });
