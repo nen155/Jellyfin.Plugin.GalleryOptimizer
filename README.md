@@ -1,5 +1,9 @@
 # Jellyfin.Plugin.GalleryOptimizer
 
+<p align="center">
+  <img src="logo.png" alt="Logo de Gallery Optimizer" width="180">
+</p>
+
 Plugin para **Jellyfin** que mejora la eficiencia de las galerías de fotos en
 clientes con poca RAM (smart TVs **webOS**, LG NetCast, navegadores antiguos…).
 
